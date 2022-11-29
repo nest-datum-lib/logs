@@ -26,7 +26,7 @@
     "@nest-datum/common": "^1.0.2",
     "@nest-datum/exceptions": "^1.0.2",
     "@nest-datum/jwt": "^1.0.2",
-    "@nest-datum/services": "^1.0.8",
+    "@nest-datum/services": "^1.0.9",
     "@nest-datum/validators": "^1.0.4",
     "@nestjs/common": "^9.0.0",
     "@nestjs/core": "^9.0.0",
