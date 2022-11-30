@@ -175,14 +175,14 @@ export class ErrController {
 				method: Validators.str('method', payload['method'], {
 					isRequired: true,
 					min: 1,
-					max: 16,
+					max: 255,
 				}),
 				content: Validators.str('content', payload['content'], {
 					isRequired: true,
 					min: 1,
 					max: 1999,
 				}),
-				file: Validators.fileName('file', payload['file'], {
+				file: Validators.str('file', payload['file'], {
 					isRequired: true,
 					min: 1,
 					max: 255,
@@ -225,7 +225,7 @@ export class ErrController {
 				replica: Validators.str('replica', payload['replica']),
 				method: Validators.str('method', payload['method']),
 				content: Validators.str('content', payload['content']),
-				file: Validators.fileName('file', payload['file']),
+				file: Validators.str('file', payload['file']),
 				line: Validators.int('line', payload['line']),
 				createdAt: Validators.date('createdAt', payload['createdAt']),
 			});
