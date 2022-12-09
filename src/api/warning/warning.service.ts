@@ -154,6 +154,8 @@ export class WarningService extends SqlService {
 			return output;
 		}
 		catch (err) {
+			console.log('WARNING CREATE ERROR', err);
+
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
@@ -183,6 +185,8 @@ export class WarningService extends SqlService {
 			return true;
 		}
 		catch (err) {
+			console.log('WARNING UPDATE ERROR', err);
+
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 

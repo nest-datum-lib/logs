@@ -153,6 +153,8 @@ export class ErrService extends SqlService {
 			return output;
 		}
 		catch (err) {
+			console.log('ERR CREATE ERROR', err);
+
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
@@ -181,6 +183,8 @@ export class ErrService extends SqlService {
 			return true;
 		}
 		catch (err) {
+			console.log('ERR UPDATE ERROR', err);
+
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
