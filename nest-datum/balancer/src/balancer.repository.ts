@@ -75,7 +75,7 @@ export class BalancerRepository extends RedisRepository {
 			return output;
 		}
 		catch (err) {
-			console.error('Select replica:', err);
+			console.error('Select replica:', err, this.balancerRepository);
 		}
 	}
 }
