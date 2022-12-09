@@ -44,18 +44,19 @@ export class BalancerRepository extends RedisRepository {
 		console.log('payload', payload);
 
 		try {
-			const test = await this.balancerRepository.hmget(`c03e1167-bb9f-4047-a761-457ca283afdf|replica|name`, 'cf9d4c59-b60f-4b55-ba6f-f0faebc46dd7');
-
-			console.log('test', test);
-
 			if (payload['id']
 				&& typeof payload['id'] === 'string') {
-				output = await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|id`, payload['id']);
+				output = (await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|id`, payload['id']))[0];
 			}
 			else {
 				let lessLoaderId,
 					lessLoader;
+
+				console.log('0000', `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
+
 				const allNamesData = await this.balancerRepository.hgetall(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
+
+				console.log('111', allNamesData);
 
 				for (payload['id'] in allNamesData) {
 					if (payload['name']
