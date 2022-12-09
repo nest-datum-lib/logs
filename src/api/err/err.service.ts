@@ -1,12 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import Redis from 'ioredis';
 import getCurrentLine from 'get-current-line';
 import { 
 	Inject,
 	Injectable, 
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import { 
 	Repository,
 	Connection, 

@@ -12,8 +12,6 @@ import { WarningModule } from './api/warning/warning.module';
 import { NotificationModule } from './api/notification/notification.module';
 import { TrafficModule } from './api/traffic/traffic.module';
 
-console.log('redisConfig', redisConfig);
-
 @Module({
 	imports: [
 		TypeOrmModule.forRoot(typeormConfig),
