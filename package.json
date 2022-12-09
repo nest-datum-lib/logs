@@ -38,6 +38,7 @@
     "get-current-line": "^6.6.0",
     "hbs": "^4.2.0",
     "ioredis": "^5.2.3",
+    "merge-deep": "^3.0.3",
     "mysql2": "^2.3.3",
     "node-mailjet": "^3.3.13",
     "reflect-metadata": "^0.1.13",
