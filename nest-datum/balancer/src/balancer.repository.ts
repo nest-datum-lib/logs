@@ -60,13 +60,15 @@ export class BalancerRepository extends RedisRepository {
 						const key = `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`;
 						const indicator = Number((await this.balancerRepository.hmget(key, id))[0]);
 
-						if (indicator === 0) {
-							return await this.findOne(id);
-						}
-						if (lessLoader > indicator
-							|| typeof lessLoader === 'undefined') {
-							lessLoader = indicator;
-							lessLoaderId = id;
+						if (id !== process['APP_ID']) {
+							if (indicator === 0) {
+								return await this.findOne(id);
+							}
+							if (lessLoader > indicator
+								|| typeof lessLoader === 'undefined') {
+								lessLoader = indicator;
+								lessLoaderId = id;
+							}
 						}
 					}
 				}
