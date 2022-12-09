@@ -56,6 +56,8 @@ export class BalancerRepository extends RedisRepository {
 					if (payload['name']
 						&& typeof payload['name'] === 'string'
 						&& payload['name'] === allNamesData[payload['id']]) {
+						console.log('==========', `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']);
+
 						const indicator = Number((await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']))[0]);
 
 						if (indicator === 0) {
@@ -68,8 +70,6 @@ export class BalancerRepository extends RedisRepository {
 						}
 					}
 				}
-				console.log('lessLoaderId', lessLoaderId);
-
 				if (!lessLoaderId) {
 					return null;
 				}
