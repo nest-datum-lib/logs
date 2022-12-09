@@ -39,7 +39,7 @@ async function createApp() {
 
 		await app.close();
 	}
-	await balancer.close();
+	// await balancer.close();
 };
 
 async function bootstrap() {
