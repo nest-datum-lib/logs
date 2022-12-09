@@ -44,6 +44,10 @@ export class BalancerRepository extends RedisRepository {
 		console.log('payload', payload);
 
 		try {
+			const test = await this.balancerRepository.hmget(`c03e1167-bb9f-4047-a761-457ca283afdf|replica|name`, 'cf9d4c59-b60f-4b55-ba6f-f0faebc46dd7');
+
+			console.log('test', test);
+
 			if (payload['id']
 				&& typeof payload['id'] === 'string') {
 				output = await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|id`, payload['id']);
@@ -77,7 +81,7 @@ export class BalancerRepository extends RedisRepository {
 			return output;
 		}
 		catch (err) {
-			console.error('Select replica:', err, this.balancerRepository);
+			console.error('Select replica:', err);
 		}
 	}
 }
