@@ -41,6 +41,8 @@ export class BalancerRepository extends RedisRepository {
 	async selectLessLoaded(payload: object) {
 		let output;
 
+		console.log('payload', payload);
+
 		try {
 			if (payload['id']
 				&& typeof payload['id'] === 'string') {
