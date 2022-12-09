@@ -136,6 +136,8 @@ export class TrafficController {
 	@EventPattern('traffic.create')
 	async create(payload) {
 		try {
+			console.log('payload', payload);
+			
 			const output = await this.trafficService.create({
 				user: Validators.token('accessToken', payload['accessToken'], {
 					accesses: [ process['ACCESS_LOGS_TRAFFIC_CREATE'] ],

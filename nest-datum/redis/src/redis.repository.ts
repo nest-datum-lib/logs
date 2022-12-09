@@ -132,8 +132,6 @@ export class RedisRepository {
 	}
 
 	async findOne(id: string, select?: Array<any>): Promise<any> {
-		console.log('id, select', id, select);
-
 		let i = 0,
 			output = {};
 		const schema = ((select || []).length > 0)
