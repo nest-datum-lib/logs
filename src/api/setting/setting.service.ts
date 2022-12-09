@@ -11,22 +11,19 @@ import {
 	Repository,
 	Connection, 
 } from 'typeorm';
+import { SqlService } from 'nest-datum/sql/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { 
-	MysqlService,
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
-import { ErrorException } from '@nest-datum/exceptions';
+	ErrorException,
+	NotFoundException, 
+} from 'nest-datum/exceptions/src';
 import { Setting } from './setting.entity';
 
 @Injectable()
-export class SettingService extends MysqlService {
+export class SettingService extends SqlService {
 	constructor(
 		@InjectRepository(Setting) private readonly settingRepository: Repository<Setting>,
 		private readonly connection: Connection,
-		private readonly registryService: RegistryService,
-		private readonly logsService: LogsService,
 		private readonly cacheService: CacheService,
 	) {
 		super();
@@ -53,64 +50,68 @@ export class SettingService extends MysqlService {
 		regex: true,
 	};
 
-	async many(payload): Promise<any> {
+	async many({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.setting.many`, payload);
+			const cachedData = await this.cacheService.get([ 'setting', 'many', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.settingRepository.findAndCount(await this.findMany(payload));
 
-			await this.cacheService.set(`${process.env.APP_ID}.setting.many`, payload, output);
+			await this.cacheService.set([ 'setting', 'many', payload ], output);
 			
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		return [ [], 0 ];
 	}
 
-	async one(payload): Promise<any> {
+	async one({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.setting.one`, payload);
+			const cachedData = await this.cacheService.get([ 'setting', 'one', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.settingRepository.findOne(await this.findOne(payload));
 		
-			await this.cacheService.set(`${process.env.APP_ID}.setting.one`, payload, output);
-
+			if (output) {
+				await this.cacheService.set([ 'setting', 'one', payload ], output);
+			}
+			if (!output) {
+				return new NotFoundException('Entity is undefined', getCurrentLine(), { user, ...payload });
+			}
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async drop(payload): Promise<any> {
+	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.one`, payload);
+			await this.cacheService.clear([ 'setting', 'many' ]);
+			await this.cacheService.clear([ 'setting', 'one', payload ]);
 
 			await this.dropByIsDeleted(this.settingRepository, payload['id']);
 
 			return true;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async dropMany(payload): Promise<any> {
+	async dropMany({ user, ...payload }): Promise<any> {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.one`, payload);
+			await this.cacheService.clear([ 'setting', 'many' ]);
+			await this.cacheService.clear([ 'setting', 'one', payload ]);
 
 			let i = 0;
 
@@ -126,7 +127,7 @@ export class SettingService extends MysqlService {
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		finally {
 			await queryRunner.release();
@@ -138,11 +139,11 @@ export class SettingService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.many`);
+			await this.cacheService.clear([ 'setting', 'many' ]);
 
 			const output = await this.settingRepository.save({
 				...payload,
-				userId: user['id'] || payload['userId'] || '',
+				userId: payload['userId'] || user['id'] || '',
 			});
 
 			await queryRunner.commitTransaction();
@@ -165,13 +166,10 @@ export class SettingService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.setting.one`);
+			await this.cacheService.clear([ 'setting', 'many' ]);
+			await this.cacheService.clear([ 'setting', 'one' ]);
 			
-			await this.updateWithId(this.settingRepository, {
-				...payload,
-				userId: user['id'] || payload['userId'] || '',
-			});
+			await this.updateWithId(this.settingRepository, payload);
 			
 			await queryRunner.commitTransaction();
 			

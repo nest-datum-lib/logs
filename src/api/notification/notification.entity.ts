@@ -14,10 +14,7 @@ export class Notification {
 	public userId: string;
 
 	@Column({ default: '' })
-	public servId: string;
-
-	@Column()
-	public replica: string;
+	public replicaId: string;
 
 	@Column()
 	public action: string;

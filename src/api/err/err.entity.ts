@@ -14,10 +14,16 @@ export class Err {
 	public userId: string;
 
 	@Column({ default: '' })
-	public servId: string;
+	public replicaId: string;
 
 	@Column()
-	public replica: string;
+	public replicaHost: string;
+
+	@Column()
+	public replicaPort: number;
+
+	@Column()
+	public serviceName: string;
 
 	@Column()
 	public method: string;

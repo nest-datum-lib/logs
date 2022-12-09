@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { 
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
+	BalancerRepository,
+	BalancerService, 
+} from 'nest-datum/balancer/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { Warning } from './warning.entity';
 import { WarningService } from './warning.service';
 import { WarningController } from './warning.controller';
@@ -15,8 +15,8 @@ import { WarningController } from './warning.controller';
 		TypeOrmModule.forFeature([ Warning ]),
 	],
 	providers: [
-		RegistryService, 
-		LogsService,
+		BalancerRepository, 
+		BalancerService,
 		CacheService,
 		WarningService, 
 	],

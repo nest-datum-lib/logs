@@ -11,22 +11,19 @@ import {
 	Repository,
 	Connection, 
 } from 'typeorm';
+import { SqlService } from 'nest-datum/sql/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { 
-	MysqlService,
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
-import { ErrorException } from '@nest-datum/exceptions';
+	ErrorException,
+	NotFoundException, 
+} from 'nest-datum/exceptions/src';
 import { Notification } from './notification.entity';
 
 @Injectable()
-export class NotificationService extends MysqlService {
+export class NotificationService extends SqlService {
 	constructor(
 		@InjectRepository(Notification) private readonly notificationRepository: Repository<Notification>,
 		private readonly connection: Connection,
-		private readonly registryService: RegistryService,
-		private readonly logsService: LogsService,
 		private readonly cacheService: CacheService,
 	) {
 		super();
@@ -35,8 +32,7 @@ export class NotificationService extends MysqlService {
 	protected selectDefaultMany = {
 		id: true,
 		userId: true,
-		servId: true,
-		replica: true,
+		replicaId: true,
 		action: true,
 		content: true,
 		createdAt: true,
@@ -44,68 +40,71 @@ export class NotificationService extends MysqlService {
 
 	protected queryDefaultMany = {
 		id: true,
-		replica: true,
 		action: true,
 	};
 
-	async many(payload): Promise<any> {
+	async many({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.notification.many`, payload);
+			const cachedData = await this.cacheService.get([ 'notification', 'many', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.notificationRepository.findAndCount(await this.findMany(payload));
 
-			await this.cacheService.set(`${process.env.APP_ID}.notification.many`, payload, output);
+			await this.cacheService.set([ 'notification', 'many', payload ], output);
 			
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		return [ [], 0 ];
 	}
 
-	async one(payload): Promise<any> {
+	async one({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.notification.one`, payload);
+			const cachedData = await this.cacheService.get([ 'notification', 'one', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.notificationRepository.findOne(await this.findOne(payload));
 		
-			await this.cacheService.set(`${process.env.APP_ID}.notification.one`, payload, output);
-
+			if (output) {
+				await this.cacheService.set([ 'notification', 'one', payload ], output);
+			}
+			if (!output) {
+				return new NotFoundException('Entity is undefined', getCurrentLine(), { user, ...payload });
+			}
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async drop(payload): Promise<any> {
+	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.one`, payload);
+			await this.cacheService.clear([ 'notification', 'many' ]);
+			await this.cacheService.clear([ 'notification', 'one', payload ]);
 
 			this.notificationRepository.delete({ id: payload['id'] });
 
 			return true;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async dropMany(payload): Promise<any> {
+	async dropMany({ user, ...payload }): Promise<any> {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.one`, payload);
+			await this.cacheService.clear([ 'notification', 'many' ]);
+			await this.cacheService.clear([ 'notification', 'one', payload ]);
 
 			let i = 0;
 
@@ -121,7 +120,7 @@ export class NotificationService extends MysqlService {
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		finally {
 			await queryRunner.release();
@@ -133,7 +132,7 @@ export class NotificationService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.many`);
+			await this.cacheService.clear([ 'notification', 'many' ]);
 
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
@@ -164,17 +163,14 @@ export class NotificationService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.notification.one`);
+			await this.cacheService.clear([ 'notification', 'many' ]);
+			await this.cacheService.clear([ 'notification', 'one' ]);
 			
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
 			}
 
-			await this.updateWithId(this.notificationRepository, {
-				...payload,
-				userId: user['id'] || payload['userId'] || '',
-			});
+			await this.updateWithId(this.notificationRepository, payload);
 			
 			await queryRunner.commitTransaction();
 			

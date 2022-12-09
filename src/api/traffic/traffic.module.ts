@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { 
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
+	BalancerRepository,
+	BalancerService, 
+} from 'nest-datum/balancer/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { Traffic } from './traffic.entity';
 import { TrafficService } from './traffic.service';
 import { TrafficController } from './traffic.controller';
@@ -15,8 +15,8 @@ import { TrafficController } from './traffic.controller';
 		TypeOrmModule.forFeature([ Traffic ]),
 	],
 	providers: [
-		RegistryService, 
-		LogsService,
+		BalancerRepository, 
+		BalancerService,
 		CacheService,
 		TrafficService, 
 	],

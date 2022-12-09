@@ -11,22 +11,19 @@ import {
 	Repository,
 	Connection, 
 } from 'typeorm';
+import { SqlService } from 'nest-datum/sql/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { 
-	MysqlService,
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
-import { ErrorException } from '@nest-datum/exceptions';
+	ErrorException,
+	NotFoundException, 
+} from 'nest-datum/exceptions/src';
 import { Traffic } from './traffic.entity';
 
 @Injectable()
-export class TrafficService extends MysqlService {
+export class TrafficService extends SqlService {
 	constructor(
 		@InjectRepository(Traffic) private readonly trafficRepository: Repository<Traffic>,
 		private readonly connection: Connection,
-		private readonly registryService: RegistryService,
-		private readonly logsService: LogsService,
 		private readonly cacheService: CacheService,
 	) {
 		super();
@@ -35,8 +32,7 @@ export class TrafficService extends MysqlService {
 	protected selectDefaultMany = {
 		id: true,
 		userId: true,
-		servId: true,
-		replica: true,
+		replicaId: true,
 		ipAddr: true,
 		referrer: true,
 		method: true,
@@ -50,71 +46,70 @@ export class TrafficService extends MysqlService {
 
 	protected queryDefaultMany = {
 		id: true,
-		replica: true,
 		ipAddr: true,
 		referrer: true,
 		method: true,
 		route: true,
 	};
 
-	async many(payload): Promise<any> {
+	async many({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.traffic.many`, payload);
+			const cachedData = await this.cacheService.get([ 'traffic', 'many', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.trafficRepository.findAndCount(await this.findMany(payload));
 
-			await this.cacheService.set(`${process.env.APP_ID}.traffic.many`, payload, output);
+			await this.cacheService.set([ 'traffic', 'many', payload ], output);
 			
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		return [ [], 0 ];
 	}
 
-	async one(payload): Promise<any> {
+	async one({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.traffic.one`, payload);
+			const cachedData = await this.cacheService.get([ 'traffic', 'one', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.trafficRepository.findOne(await this.findOne(payload));
 		
-			await this.cacheService.set(`${process.env.APP_ID}.traffic.one`, payload, output);
+			await this.cacheService.set([ 'traffic', 'one', payload ], output);
 
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async drop(payload): Promise<any> {
+	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.one`, payload);
+			await this.cacheService.clear([ 'traffic', 'many' ]);
+			await this.cacheService.clear([ 'traffic', 'one', payload ]);
 
 			this.trafficRepository.delete({ id: payload['id'] });
 
 			return true;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async dropMany(payload): Promise<any> {
+	async dropMany({ user, ...payload }): Promise<any> {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.one`, payload);
+			await this.cacheService.clear([ 'traffic', 'many' ]);
+			await this.cacheService.clear([ 'traffic', 'one', payload ]);
 
 			let i = 0;
 
@@ -130,7 +125,7 @@ export class TrafficService extends MysqlService {
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		finally {
 			await queryRunner.release();
@@ -142,7 +137,7 @@ export class TrafficService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.many`);
+			await this.cacheService.clear([ 'traffic', 'many' ]);
 
 			if (typeof payload['headers'] === 'object') {
 				payload['headers'] = JSON.stringify(payload['headers']);
@@ -182,8 +177,8 @@ export class TrafficService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.traffic.one`);
+			await this.cacheService.clear([ 'traffic', 'many' ]);
+			await this.cacheService.clear([ 'traffic', 'one' ]);
 
 			if (typeof payload['headers'] === 'object') {
 				payload['headers'] = JSON.stringify(payload['headers']);
@@ -198,10 +193,7 @@ export class TrafficService extends MysqlService {
 				payload['queries'] = JSON.stringify(payload['queries']);
 			}
 			
-			await this.updateWithId(this.trafficRepository, {
-				...payload,
-				userId: user['id'] || payload['userId'] || '',
-			});
+			await this.updateWithId(this.trafficRepository, payload);
 			
 			await queryRunner.commitTransaction();
 			

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { 
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
+	BalancerRepository,
+	BalancerService, 
+} from 'nest-datum/balancer/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { Notification } from './notification.entity';
 import { NotificationService } from './notification.service';
 import { NotificationController } from './notification.controller';
@@ -15,8 +15,8 @@ import { NotificationController } from './notification.controller';
 		TypeOrmModule.forFeature([ Notification ]),
 	],
 	providers: [
-		RegistryService, 
-		LogsService,
+		BalancerRepository, 
+		BalancerService,
 		CacheService,
 		NotificationService, 
 	],

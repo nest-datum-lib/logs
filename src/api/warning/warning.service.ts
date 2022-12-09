@@ -11,22 +11,19 @@ import {
 	Repository,
 	Connection, 
 } from 'typeorm';
+import { SqlService } from 'nest-datum/sql/src';
+import { CacheService } from 'nest-datum/cache/src';
 import { 
-	MysqlService,
-	RegistryService,
-	LogsService,
-	CacheService, 
-} from '@nest-datum/services';
-import { ErrorException } from '@nest-datum/exceptions';
+	ErrorException,
+	NotFoundException, 
+} from 'nest-datum/exceptions/src';
 import { Warning } from './warning.entity';
 
 @Injectable()
-export class WarningService extends MysqlService {
+export class WarningService extends SqlService {
 	constructor(
 		@InjectRepository(Warning) private readonly warningRepository: Repository<Warning>,
 		private readonly connection: Connection,
-		private readonly registryService: RegistryService,
-		private readonly logsService: LogsService,
 		private readonly cacheService: CacheService,
 	) {
 		super();
@@ -35,8 +32,10 @@ export class WarningService extends MysqlService {
 	protected selectDefaultMany = {
 		id: true,
 		userId: true,
-		servId: true,
-		replica: true,
+		replicaId: true,
+		replicaHost: true,
+		replicaPort: true,
+		serviceName: true,
 		method: true,
 		content: true,
 		file: true,
@@ -46,69 +45,74 @@ export class WarningService extends MysqlService {
 
 	protected queryDefaultMany = {
 		id: true,
-		replica: true,
+		replicaHost: true,
+		serviceName: true,
 		method: true,
 		file: true,
 	};
 
-	async many(payload): Promise<any> {
+	async many({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.warning.many`, payload);
+			const cachedData = await this.cacheService.get([ 'warning', 'many', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.warningRepository.findAndCount(await this.findMany(payload));
 
-			await this.cacheService.set(`${process.env.APP_ID}.warning.many`, payload, output);
+			await this.cacheService.set([ 'warning', 'many', payload ], output);
 			
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		return [ [], 0 ];
 	}
 
-	async one(payload): Promise<any> {
+	async one({ user, ...payload }): Promise<any> {
 		try {
-			const cachedData = await this.cacheService.get(`${process.env.APP_ID}.warning.one`, payload);
+			const cachedData = await this.cacheService.get([ 'warning', 'one', payload ]);
 
 			if (cachedData) {
 				return cachedData;
 			}
 			const output = await this.warningRepository.findOne(await this.findOne(payload));
 		
-			await this.cacheService.set(`${process.env.APP_ID}.warning.one`, payload, output);
-
+			if (output) {
+				await this.cacheService.set([ 'warning', 'one', payload ], output);
+			}
+			if (!output) {
+				return new NotFoundException('Entity is undefined', getCurrentLine(), { user, ...payload });
+			}
 			return output;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async drop(payload): Promise<any> {
+	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.one`, payload);
+			await this.cacheService.clear([ 'warning', 'many' ]);
+			await this.cacheService.clear([ 'warning', 'one', payload ]);
 
 			this.warningRepository.delete({ id: payload['id'] });
 
 			return true;
 		}
 		catch (err) {
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 	}
 
-	async dropMany(payload): Promise<any> {
+	async dropMany({ user, ...payload }): Promise<any> {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.one`, payload);
+			await this.cacheService.clear([ 'warning', 'many' ]);
+			await this.cacheService.clear([ 'warning', 'one', payload ]);
 
 			let i = 0;
 
@@ -124,7 +128,7 @@ export class WarningService extends MysqlService {
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
-			throw new ErrorException(err.message, getCurrentLine(), payload);
+			throw new ErrorException(err.message, getCurrentLine(), { user, ...payload });
 		}
 		finally {
 			await queryRunner.release();
@@ -136,7 +140,7 @@ export class WarningService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.many`);
+			await this.cacheService.clear([ 'warning', 'many' ]);
 
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
@@ -167,17 +171,14 @@ export class WarningService extends MysqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.many`);
-			await this.cacheService.clear(`${process.env.APP_ID}.warning.one`);
+			await this.cacheService.clear([ 'warning', 'many' ]);
+			await this.cacheService.clear([ 'warning', 'one' ]);
 			
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
 			}
 			
-			await this.updateWithId(this.warningRepository, {
-				...payload,
-				userId: user['id'] || payload['userId'] || '',
-			});
+			await this.updateWithId(this.warningRepository, payload);
 			
 			await queryRunner.commitTransaction();
 			

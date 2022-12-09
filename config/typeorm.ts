@@ -1,7 +1,7 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { findEnvPropertiesByTwoOccurrences } from '@nest-datum/common';
+import { envPropsBySubstr } from 'nest-datum/common/src';
 
-const configArr: Array<any> = findEnvPropertiesByTwoOccurrences('MYSQL_SLAVE', '_HOST', (index) => ({
+const configArr: Array<any> = envPropsBySubstr('MYSQL_SLAVE', '_HOST', (index) => ({
 	host: process.env[`MYSQL_SLAVE${index}_HOST`],
 	port: Number(process.env[`MYSQL_SLAVE${index}_PORT`]),
 	username: process.env[`MYSQL_SLAVE${index}_USER`],
