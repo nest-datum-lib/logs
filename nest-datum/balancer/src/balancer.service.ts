@@ -132,6 +132,8 @@ export class BalancerService {
 	}
 
 	async log(exception) {
+		console.log('222', exception);
+
 		const replica =  await this.balancerRepository.selectLessLoaded({
 			name: 'logs',
 		});
@@ -301,6 +303,7 @@ export class BalancerService {
 					updatedAt: undefined,
 					restartedAt: undefined,
 				});
+				console.log('111');
 				this.log(new NotificationException(`Replica "${process['APP_ID']}|${process.env.APP_HOST}:${process.env.APP_PORT}" for "${process.env.APP_NAME}" service has registered in redis.`, {
 					...process,
 					method: 'Replica register',
