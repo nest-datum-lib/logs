@@ -178,8 +178,6 @@ export class BalancerService {
 			if (cmd.includes('.create')
 				|| cmd.includes('.update')
 				|| cmd.includes('.drop')) {
-				console.log('11111');
-
 				transporter.emit(cmd, { ...payload });
 			}
 			else {
