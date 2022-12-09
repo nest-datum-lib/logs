@@ -41,8 +41,6 @@ export class BalancerRepository extends RedisRepository {
 	async selectLessLoaded(payload: object) {
 		let output;
 
-		console.log('payload', payload);
-
 		try {
 			if (payload['id']
 				&& typeof payload['id'] === 'string') {
@@ -52,17 +50,13 @@ export class BalancerRepository extends RedisRepository {
 				let lessLoaderId,
 					lessLoader;
 
-				console.log('0000', `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
-
 				const allNamesData = await this.balancerRepository.hgetall(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
-
-				console.log('111', allNamesData);
 
 				for (payload['id'] in allNamesData) {
 					if (payload['name']
 						&& typeof payload['name'] === 'string'
 						&& payload['name'] === allNamesData[payload['id']]) {
-						const indicator = Number(await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']));
+						const indicator = Number((await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']))[0]);
 
 						if (indicator === 0) {
 							return await this.findOne(payload['id']);
@@ -74,6 +68,8 @@ export class BalancerRepository extends RedisRepository {
 						}
 					}
 				}
+				console.log('lessLoaderId', lessLoaderId);
+
 				if (!lessLoaderId) {
 					return null;
 				}
