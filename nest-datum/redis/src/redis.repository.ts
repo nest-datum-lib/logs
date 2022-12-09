@@ -11,6 +11,8 @@ export class RedisRepository {
 	}
 
 	async scan(match: string, count: number = 64) {
+		console.log('scan', this.redisRepository);
+
 		return await (new Promise(async (resolve, reject) => {
 			let scanStream,
 				output = []; 
@@ -42,6 +44,8 @@ export class RedisRepository {
 	}
 
 	async find(payload?: object): Promise<any> {
+		console.log('find', this.redisRepository);
+
 		if (payload
 			&& typeof payload === 'object'
 			&& payload['where']
@@ -132,6 +136,8 @@ export class RedisRepository {
 	}
 
 	async findOne(id: string, select?: Array<any>): Promise<any> {
+		console.log('findOne', this.redisRepository);
+
 		let i = 0,
 			output = {};
 		const schema = ((select || []).length > 0)
@@ -155,6 +161,8 @@ export class RedisRepository {
 	}
 
 	async delete(id: string): Promise<any> {
+		console.log('delete', this.redisRepository);
+
 		let i = 0;
 
 		while (i < this.schema.length) {
@@ -172,6 +180,8 @@ export class RedisRepository {
 	}
 
 	async create(payload: object): Promise<any> {
+		console.log('create', this.redisRepository);
+
 		const id = (typeof payload['id'] === 'string'
 			&& payload['id'].length >= 1
 			&& payload['id'].length <= 64)
@@ -196,6 +206,8 @@ export class RedisRepository {
 	}
 
 	async update(id: string, payload: object): Promise<any> {
+		console.log('update', this.redisRepository);
+		
 		let key;
 
 		for (key in payload) {
