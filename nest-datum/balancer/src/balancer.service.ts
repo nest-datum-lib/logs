@@ -132,7 +132,7 @@ export class BalancerService {
 	}
 
 	async log(exception) {
-		const replica =  await this.balancerRepository.selectLessLoaded({
+		/*const replica =  await this.balancerRepository.selectLessLoaded({
 			name: 'logs',
 		});
 		if (replica
@@ -152,7 +152,7 @@ export class BalancerService {
 					accessToken, 
 				});
 			}
-		}
+		}*/
 	}
 
 	async send(query, payload: any): Promise<any> {
