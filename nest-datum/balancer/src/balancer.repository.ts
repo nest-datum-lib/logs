@@ -57,7 +57,7 @@ export class BalancerRepository extends RedisRepository {
 
 				console.log('222', allNamesData);
 
-				const test00 = await this.balancerRepository.hmget('c03e1167-bb9f-4047-a761-457ca283afdf|replica|name', 'cf9d4c59-b60f-4b55-ba6f-f0faebc46dd7');
+				const test00 = await this.balancerRepository.keys('*');
 
 				console.log('test000000', test00);
 
