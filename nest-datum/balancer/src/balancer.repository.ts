@@ -61,7 +61,12 @@ export class BalancerRepository extends RedisRepository {
 
 						console.log('key, id', key, id);
 
-						const indicator = await this.balancerRepository.hmget(key, id);
+						const test0 = await this.balancerRepository.hmget('c03e1167-bb9f-4047-a761-457ca283afdf|replica|name', 'cf9d4c59-b60f-4b55-ba6f-f0faebc46dd7');
+
+						console.log('test0', test0);
+
+						const test = await this.balancerRepository.hmget(key, id);
+						const indicator = Number(test[0]);
 
 						console.log('indicator', indicator);
 
