@@ -47,26 +47,25 @@ export class BalancerRepository extends RedisRepository {
 				output = (await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|id`, payload['id']))[0];
 			}
 			else {
-				let lessLoaderId,
+				let id,
+					lessLoaderId,
 					lessLoader;
 
 				const allNamesData = await this.balancerRepository.hgetall(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
 
-				for (payload['id'] in allNamesData) {
+				for (id in allNamesData) {
 					if (payload['name']
 						&& typeof payload['name'] === 'string'
-						&& payload['name'] === allNamesData[payload['id']]) {
-						console.log('==========', `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']);
-
-						const indicator = Number((await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, payload['id']))[0]);
+						&& payload['name'] === allNamesData[id]) {
+						const indicator = Number((await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, id))[0]);
 
 						if (indicator === 0) {
-							return await this.findOne(payload['id']);
+							return await this.findOne(id);
 						}
 						if (lessLoader > indicator
 							|| typeof lessLoader === 'undefined') {
 							lessLoader = indicator;
-							lessLoaderId = payload['id'];
+							lessLoaderId = id;
 						}
 					}
 				}
