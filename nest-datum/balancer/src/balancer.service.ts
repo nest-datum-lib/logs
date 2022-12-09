@@ -272,7 +272,7 @@ export class BalancerService {
 						updatedAt: undefined,
 						restartedAt: undefined,
 					});
-					this.log(new NotificationException(`Replica "${process['APP_ID']}|${process.env.APP_HOST}:${process.env.APP_PORT}" for "${process.env.APP_NAME}" service has registered in redis.`, {
+					await this.log(new NotificationException(`Replica "${process['APP_ID']}|${process.env.APP_HOST}:${process.env.APP_PORT}" for "${process.env.APP_NAME}" service has registered in redis.`, {
 						...process,
 						method: 'Replica register',
 					}));				
@@ -301,7 +301,7 @@ export class BalancerService {
 					updatedAt: undefined,
 					restartedAt: undefined,
 				});
-				this.log(new NotificationException(`Replica "${process['APP_ID']}|${process.env.APP_HOST}:${process.env.APP_PORT}" for "${process.env.APP_NAME}" service has registered in redis.`, {
+				await this.log(new NotificationException(`Replica "${process['APP_ID']}|${process.env.APP_HOST}:${process.env.APP_PORT}" for "${process.env.APP_NAME}" service has registered in redis.`, {
 					...process,
 					method: 'Replica register',
 				}));
