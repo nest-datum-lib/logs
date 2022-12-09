@@ -136,51 +136,6 @@ export class TrafficController {
 	@EventPattern('traffic.create')
 	async create(payload) {
 		try {
-			console.log('payload', payload);
-
-			console.log('===========', {
-				user: Validators.token('accessToken', payload['accessToken'], {
-					accesses: [ process['ACCESS_LOGS_TRAFFIC_CREATE'] ],
-					isRequired: true,
-				}),
-				id: Validators.id('id', payload['id']),
-				userId: Validators.id('userId', payload['userId']),
-				replicaId: Validators.id('replicaId', payload['appId'], {
-					isRequired: true,
-				}),
-				ipAddr: Validators.ip('ipAddr', payload['ipAddr'], {
-					isRequired: true,
-				}),
-				referrer: Validators.str('referrer', payload['referrer']),
-				method: Validators.str('method', payload['method'], {
-					isRequired: true,
-					min: 1,
-					max: 16,
-				}),
-				route: Validators.str('route', payload['route'], {
-					isRequired: true,
-					min: 1,
-					max: 255,
-				}),
-				headers: Validators.obj('headers', payload['headers'], {
-					min: 1,
-					max: 999,
-				}),
-				queries: Validators.obj('queries', payload['queries'], {
-					min: 1,
-					max: 255,
-				}),
-				body: Validators.objOrArr('body', payload['body'], {
-					min: 1,
-					max: 255,
-				}),
-				cookies: Validators.obj('cookies', payload['cookies'], {
-					min: 1,
-					max: 255,
-				}),
-				createdAt: Validators.date('createdAt', payload['createdAt']),
-			});
-
 			const output = await this.trafficService.create({
 				user: Validators.token('accessToken', payload['accessToken'], {
 					accesses: [ process['ACCESS_LOGS_TRAFFIC_CREATE'] ],

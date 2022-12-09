@@ -134,6 +134,8 @@ export class TrafficService extends SqlService {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
+			console.log('0000', payload);
+
 			await queryRunner.startTransaction();
 			await this.cacheService.clear([ 'traffic', 'many' ]);
 
@@ -150,16 +152,22 @@ export class TrafficService extends SqlService {
 				payload['queries'] = JSON.stringify(payload['queries']);
 			}
 
+			console.log('11111111111', payload);
+
 			const output = await this.trafficRepository.save({
 				...payload,
 				userId: user['id'] || payload['userId'] || '',
 			});
+
+			console.log('22222', output);
 
 			await queryRunner.commitTransaction();
 
 			return output;
 		}
 		catch (err) {
+			console.log('err', err);
+			
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
