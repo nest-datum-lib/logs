@@ -57,7 +57,13 @@ export class BalancerRepository extends RedisRepository {
 					if (payload['name']
 						&& typeof payload['name'] === 'string'
 						&& payload['name'] === allNamesData[id]) {
-						const indicator = Number((await this.balancerRepository.hmget(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`, id))[0]);
+						const key = `${process['PROJECT_ID']}|${BalancerRepository.EntityName}|serviceResponsLoadingIndicator`;
+
+						console.log('key, id', key, id);
+
+						const indicator = await this.balancerRepository.hmget(key, id);
+
+						console.log('indicator', indicator);
 
 						if (indicator === 0) {
 							return await this.findOne(id);
