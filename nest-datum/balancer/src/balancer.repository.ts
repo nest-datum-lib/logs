@@ -59,7 +59,7 @@ export class BalancerRepository extends RedisRepository {
 
 				const allNamesData = await this.balancerRepository.hgetall(`${process['PROJECT_ID']}|${BalancerRepository.EntityName}|name`);
 
-				console.log('222', allNamesData, this.balancerRepository);
+				console.log('222', allNamesData);
 
 				for (id in allNamesData) {
 					if (payload['name']
