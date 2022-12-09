@@ -134,40 +134,36 @@ export class TrafficService extends SqlService {
 		const queryRunner = await this.connection.createQueryRunner(); 
 
 		try {
-			console.log('0000', payload);
-
 			await queryRunner.startTransaction();
 			await this.cacheService.clear([ 'traffic', 'many' ]);
 
-			if (typeof payload['headers'] === 'object') {
-				payload['headers'] = JSON.stringify(payload['headers']);
-			}
-			if (typeof payload['cookies'] === 'object') {
-				payload['cookies'] = JSON.stringify(payload['cookies']);
-			}
-			if (typeof payload['body'] === 'object') {
-				payload['body'] = JSON.stringify(payload['body']);
-			}
-			if (typeof payload['queries'] === 'object') {
-				payload['queries'] = JSON.stringify(payload['queries']);
-			}
-
-			console.log('11111111111', payload);
+			payload['headers'] = (payload['headers']
+				&& typeof payload['headers'] === 'object')
+				? JSON.stringify(payload['headers'])
+				: '';
+			payload['cookies'] = (payload['cookies']
+				&& typeof payload['cookies'] === 'object')
+				? JSON.stringify(payload['cookies'])
+				: '';
+			payload['body'] = (payload['body']
+				&& typeof payload['body'] === 'object')
+				? JSON.stringify(payload['body'])
+				: '';
+			payload['queries'] = (payload['queries']
+				&& typeof payload['queries'] === 'object')
+				? JSON.stringify(payload['queries'])
+				: '';
 
 			const output = await this.trafficRepository.save({
 				...payload,
 				userId: user['id'] || payload['userId'] || '',
 			});
 
-			console.log('22222', output);
-
 			await queryRunner.commitTransaction();
 
 			return output;
 		}
 		catch (err) {
-			console.log('err', err);
-			
 			await queryRunner.rollbackTransaction();
 			await queryRunner.release();
 
