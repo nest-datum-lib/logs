@@ -136,8 +136,6 @@ export class ErrController {
 	@EventPattern('err.create')
 	async create(payload) {
 		try {
-			console.log('payload', payload);
-
 			const output = await this.errService.create({
 				user: Validators.token('accessToken', payload['accessToken'], {
 					accesses: [ process['ACCESS_LOGS_ERR_CREATE'] ],
@@ -189,8 +187,6 @@ export class ErrController {
 			return output;
 		}
 		catch (err) {
-			console.log('err', err);
-			
 			this.balancerService.log(err);
 			this.balancerService.decrementServiceResponseLoadingIndicator();
 
