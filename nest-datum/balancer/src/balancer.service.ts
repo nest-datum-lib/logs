@@ -78,7 +78,6 @@ export class BalancerService {
 
 			delete _clients[replicaId];
 
-			this.log(new ErrorException(err.message, getCurrentLine(), { replicaId, serviceResponsLoadingIndicator }));
 			this.balancerRepository.update(replicaId, {
 				active: false,
 			});
