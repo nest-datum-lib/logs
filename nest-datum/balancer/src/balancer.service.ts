@@ -60,7 +60,7 @@ export class BalancerService {
 						else if (index >= transporterAttemptsNum) {
 							clearInterval(interval);
 							console.log('transporterConnected replicaId', replicaId);
-							reject(new Error('Service is unavailable'));
+							reject(new Error(`Service "${replicaId}" is unavailable`));
 							return;
 						}
 						index += 1;
@@ -155,9 +155,11 @@ export class BalancerService {
 					roleId: 'sso-role-admin',
 					email: process['USER_ROOT_EMAIL'],
 				}, Date.now());
+				const cmd = exception.cmd();
+				const data = exception.data();
 
-				transporter.emit(exception.cmd(), {
-					...exception.data(),
+				transporter.emit(cmd, {
+					...data,
 					accessToken, 
 				});
 			}

@@ -39,8 +39,8 @@ export class Exception {
 				&& typeof this.options['method'] === 'string')
 				? this.options['method']
 				: '',
-			file: (typeof this.options['file']
-				&& this.options['file'] === 'string')
+			file: (this.options['file']
+				&& typeof this.options['file'] === 'string')
 				? this.options['file']
 				: '',
 			line: (this.options['line'] >= 0)
