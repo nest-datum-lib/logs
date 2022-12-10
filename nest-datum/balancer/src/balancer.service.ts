@@ -59,6 +59,7 @@ export class BalancerService {
 						}
 						else if (index >= transporterAttemptsNum) {
 							clearInterval(interval);
+							console.log('transporterConnected replicaId', replicaId);
 							reject(new Error('Service is unavailable'));
 							return;
 						}
@@ -132,6 +133,14 @@ export class BalancerService {
 	}
 
 	async log(exception) {
+		if (!exception
+			|| typeof exception !== 'object'
+			|| typeof exception['cmd'] !== 'function'
+			|| typeof exception['data'] !== 'function') {
+			console.error(exception);
+			return;
+		}
+
 		const replica =  await this.balancerRepository.selectLessLoaded({
 			name: 'logs',
 		});
