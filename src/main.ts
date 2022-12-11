@@ -13,6 +13,10 @@ import {
 import { getEnvValue } from 'nest-datum/common/src';
 import { AppModule } from './app.module';
 
+process.on('uncaughtException', (err) => {
+	console.error(err);
+});
+
 async function createApp() {
 	const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
 		strategy: new TransportStrategies[process.env.APP_TRANSPORTER]({
