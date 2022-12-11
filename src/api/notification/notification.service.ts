@@ -84,8 +84,8 @@ export class NotificationService extends SqlService {
 
 	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear([ 'notification', 'many' ]);
-			await this.cacheService.clear([ 'notification', 'one', payload ]);
+			this.cacheService.clear([ 'notification', 'many' ]);
+			this.cacheService.clear([ 'notification', 'one', payload ]);
 
 			this.notificationRepository.delete({ id: payload['id'] });
 
@@ -101,8 +101,9 @@ export class NotificationService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'notification', 'many' ]);
-			await this.cacheService.clear([ 'notification', 'one', payload ]);
+			
+			this.cacheService.clear([ 'notification', 'many' ]);
+			this.cacheService.clear([ 'notification', 'one', payload ]);
 
 			let i = 0;
 
@@ -130,7 +131,8 @@ export class NotificationService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'notification', 'many' ]);
+			
+			this.cacheService.clear([ 'notification', 'many' ]);
 
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
@@ -161,8 +163,9 @@ export class NotificationService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'notification', 'many' ]);
-			await this.cacheService.clear([ 'notification', 'one' ]);
+			
+			this.cacheService.clear([ 'notification', 'many' ]);
+			this.cacheService.clear([ 'notification', 'one' ]);
 			
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);

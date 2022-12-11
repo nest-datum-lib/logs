@@ -89,8 +89,8 @@ export class TrafficService extends SqlService {
 
 	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear([ 'traffic', 'many' ]);
-			await this.cacheService.clear([ 'traffic', 'one', payload ]);
+			this.cacheService.clear([ 'traffic', 'many' ]);
+			this.cacheService.clear([ 'traffic', 'one', payload ]);
 
 			this.trafficRepository.delete({ id: payload['id'] });
 
@@ -106,8 +106,9 @@ export class TrafficService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'traffic', 'many' ]);
-			await this.cacheService.clear([ 'traffic', 'one', payload ]);
+			
+			this.cacheService.clear([ 'traffic', 'many' ]);
+			this.cacheService.clear([ 'traffic', 'one', payload ]);
 
 			let i = 0;
 
@@ -135,7 +136,8 @@ export class TrafficService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'traffic', 'many' ]);
+			
+			this.cacheService.clear([ 'traffic', 'many' ]);
 
 			payload['headers'] = (payload['headers']
 				&& typeof payload['headers'] === 'object')
@@ -179,8 +181,9 @@ export class TrafficService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'traffic', 'many' ]);
-			await this.cacheService.clear([ 'traffic', 'one' ]);
+			
+			this.cacheService.clear([ 'traffic', 'many' ]);
+			this.cacheService.clear([ 'traffic', 'one' ]);
 
 			if (typeof payload['headers'] === 'object') {
 				payload['headers'] = JSON.stringify(payload['headers']);

@@ -92,8 +92,8 @@ export class ErrService extends SqlService {
 
 	async drop({ user, ...payload }): Promise<any> {
 		try {
-			await this.cacheService.clear([ 'err', 'many' ]);
-			await this.cacheService.clear([ 'err', 'one', payload ]);
+			this.cacheService.clear([ 'err', 'many' ]);
+			this.cacheService.clear([ 'err', 'one', payload ]);
 
 			this.errRepository.delete({ id: payload['id'] });
 
@@ -109,8 +109,9 @@ export class ErrService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'err', 'many' ]);
-			await this.cacheService.clear([ 'err', 'one', payload ]);
+			
+			this.cacheService.clear([ 'err', 'many' ]);
+			this.cacheService.clear([ 'err', 'one', payload ]);
 
 			let i = 0;
 
@@ -138,7 +139,8 @@ export class ErrService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'err', 'many' ]);
+			
+			this.cacheService.clear([ 'err', 'many' ]);
 
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);
@@ -170,8 +172,9 @@ export class ErrService extends SqlService {
 
 		try {
 			await queryRunner.startTransaction();
-			await this.cacheService.clear([ 'err', 'many' ]);
-			await this.cacheService.clear([ 'err', 'one' ]);
+			
+			this.cacheService.clear([ 'err', 'many' ]);
+			this.cacheService.clear([ 'err', 'one' ]);
 			
 			if (typeof payload['content'] === 'object') {
 				payload['content'] = JSON.stringify(payload['content']);

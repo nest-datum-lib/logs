@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ErrorException } from 'nest-datum/exceptions/src';
 
 const timeouts = {};
+const tmp = {};
 
 @Injectable()
 export class CacheService {
@@ -40,7 +41,7 @@ export class CacheService {
 		try {
 			const key = this.buildKey(query);
 			
-			output = this.redisCache[key]
+			output = tmp[key]
 				? undefined
 				: await this.redisCache.get(key);
 		}
@@ -80,7 +81,7 @@ export class CacheService {
 			const key = this.buildKey(query);
 			const cacheDataByKey = Number(await this.redisCache.exists(key));
 
-			this.redisCache[key] = true;
+			tmp[key] = true;
 
 			if (cacheDataByKey) {
 				await this.redisCache.del(key);
@@ -123,7 +124,7 @@ export class CacheService {
 
 			timeouts[key] = setTimeout(() => {
 				delete timeouts[key];
-				delete this.redisCache[key];
+				delete tmp[key];
 			}, 1000);
 
 			return true;
