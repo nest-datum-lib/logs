@@ -175,6 +175,10 @@ export class BalancerService {
 			id,
 			name,
 		});
+
+		if (!replica) {
+			throw new NotFoundException(`Service replica ${name} not found`, getCurrentLine(), { name, cmd, payload });
+		}
 		const transporter = this.getTransporter(replica);
 
 		if (transporter

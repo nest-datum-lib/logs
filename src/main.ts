@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-const { exec } = require('child_process');
-
 import { v4 as uuidv4 } from 'uuid';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions } from '@nestjs/microservices';
@@ -10,12 +8,17 @@ import {
 	BalancerModule,
 	BalancerService, 
 } from 'nest-datum/balancer/src';
-import { getEnvValue } from 'nest-datum/common/src';
+import { 
+	getEnvValue,
+	onExit,
+	onWarning,
+	onUncaughtException, 
+} from 'nest-datum/common/src';
 import { AppModule } from './app.module';
 
-process.on('uncaughtException', (err) => {
-	console.error(err);
-});
+process.on('exit', onExit);
+process.on('warning', onWarning);
+process.on('uncaughtException', onUncaughtException);
 
 async function createApp() {
 	const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {

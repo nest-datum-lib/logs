@@ -77,6 +77,7 @@ export class BalancerRepository extends RedisRepository {
 				}
 				output = await this.findOne(lessLoaderId);
 			}
+
 			return output;
 		}
 		catch (err) {
