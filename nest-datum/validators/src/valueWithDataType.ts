@@ -3,7 +3,6 @@ import { WarningException } from 'nest-datum/exceptions/src';
 
 export const valueWithDataType = (propertyName: string, value, options = {}) => {
 	if (typeof value !== 'undefined'
-		&& value !== ''
 		&& value !== null) {
 		return value;
 	}

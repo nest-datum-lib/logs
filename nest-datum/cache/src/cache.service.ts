@@ -15,7 +15,7 @@ export class CacheService {
 	}
 
 	buildKey(query: Array<any>): string {
-		let key = `${process['PROJECT_ID']}|`,
+		let key = `${process['PROJECT_ID']}|${process['APP_ID']}|`,
 			i = 0;
 
 		while (i < query.length) {

@@ -4,6 +4,7 @@ import getEnvValue from './utils/getEnvValue';
 import setEnvValue from './utils/setEnvValue';
 import readEnvVars from './utils/readEnvVars';
 import isObject from './utils/isObject';
+import getFile from './utils/getFile';
 import onExit from './process/onExit';
 import onWarning from './process/onWarning';
 import onUncaughtException from './process/onUncaughtException';
@@ -17,6 +18,7 @@ export {
 	AccessToken,
 	envPropsBySubstr,
 	isObject,
+	getFile,
 	TransportStrategies,
 	getEnvValue,
 	setEnvValue,
