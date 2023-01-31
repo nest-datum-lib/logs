@@ -46,7 +46,9 @@ export class SqlService {
 
 			if (Array.isArray(filterValue)) {
 				where[filterKey] = (this.whereOperators[filterValue[0]])
-					? this.whereOperators[filterValue[0]](filterValue.slice(1))
+					? this.whereOperators[filterValue[0]]((this.whereOperators[filterValue[1]])
+						? this.whereOperators[filterValue[1]](filterValue.slice(2))
+						: filterValue.slice(1))
 					: filterValue;
 			}
 			else if (typeof filterValue === 'object') {
