@@ -162,6 +162,7 @@ export class SettingController {
 				}),
 				regex: Validators.regex('regex', payload['regex']),
 				isRequired: Validators.bool('isRequired', payload['isRequired']),
+				isNotDelete: Validators.bool('isNotDelete', payload['isNotDelete']),
 			});
 
 			this.balancerService.decrementServiceResponseLoadingIndicator();
@@ -202,6 +203,7 @@ export class SettingController {
 				regex: Validators.regex('regex', payload['regex']),
 				isRequired: Validators.bool('isRequired', payload['isRequired']),
 				isDeleted: Validators.bool('isDeleted', payload['isDeleted']),
+				isNotDelete: Validators.bool('isNotDelete', payload['isNotDelete']),
 			});
 
 			this.balancerService.decrementServiceResponseLoadingIndicator();
